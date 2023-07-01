@@ -1,16 +1,16 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Currency1688209312332 implements MigrationInterface {
-    name = 'Currency1688209312332'
+export class Currency1688211684231 implements MigrationInterface {
+    name = 'Currency1688211684231'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            CREATE TABLE "currency" (
+            CREATE TABLE "currencies" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "code" text NOT NULL,
-                CONSTRAINT "PK_3cda65c731a6264f0e444cc9b91" PRIMARY KEY ("id")
+                CONSTRAINT "PK_d528c54860c4182db13548e08c4" PRIMARY KEY ("id")
             )
         `);
         await queryRunner.query(`
@@ -31,7 +31,7 @@ export class Currency1688209312332 implements MigrationInterface {
             DROP TABLE "query-result-cache"
         `);
         await queryRunner.query(`
-            DROP TABLE "currency"
+            DROP TABLE "currencies"
         `);
     }
 

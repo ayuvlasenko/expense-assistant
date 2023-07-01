@@ -10,7 +10,7 @@ export class CurrencyService {
         private readonly currencyRepository: Repository<Currency>,
     ) {}
 
-    async create(code: string): Promise<Currency> {
+    async findOneOrCreate(code: string): Promise<Currency> {
         const existingCurrency = await this.currencyRepository.findOne({
             where: {
                 code: code.toUpperCase(),

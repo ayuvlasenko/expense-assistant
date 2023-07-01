@@ -11,10 +11,8 @@ export class CurrencyService {
     ) {}
 
     async findOneOrCreate(code: string): Promise<Currency> {
-        const existingCurrency = await this.currencyRepository.findOne({
-            where: {
-                code: code.toUpperCase(),
-            },
+        const existingCurrency = await this.currencyRepository.findOneBy({
+            code: code.toUpperCase(),
         });
 
         if (existingCurrency) {
@@ -33,10 +31,8 @@ export class CurrencyService {
     }
 
     async findOne(code: string): Promise<Currency | null> {
-        return this.currencyRepository.findOne({
-            where: {
-                code: code.trim().toUpperCase(),
-            },
+        return this.currencyRepository.findOneBy({
+            code: code.trim().toUpperCase(),
         });
     }
 

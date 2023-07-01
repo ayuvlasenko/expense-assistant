@@ -9,9 +9,11 @@ export class Account extends BaseEntity {
     name!: string;
 
     @ManyToOne(() => Currency, { eager: true })
+    @Index()
     currency!: Currency;
 
     @ManyToOne(() => User, { eager: true })
+    @Index()
     user!: User;
 
     constructor(name: string, currency: Currency, user: User) {

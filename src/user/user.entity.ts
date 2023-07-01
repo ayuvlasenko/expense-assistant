@@ -5,6 +5,7 @@ import { BaseEntity } from "~/common/entity/base.entity";
 @Entity("users")
 export class User extends BaseEntity {
     @Column("text")
+    @Index("unique_user_telegram_id", { unique: true })
     telegramId!: string;
 
     @OneToMany(() => Account, (account) => account.user)

@@ -1,10 +1,9 @@
 import { Module } from "@nestjs/common";
 import { BalanceService } from "./balance.service";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { Balance } from "./balance.entity";
+import { PrismaModule } from "~/prisma/prisma.module";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Balance])],
+    imports: [PrismaModule],
     providers: [BalanceService],
     exports: [BalanceService],
 })

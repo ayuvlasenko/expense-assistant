@@ -1,25 +1,24 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "./user.entity";
-import { Repository } from "typeorm";
+import { User } from "@prisma/client";
+import { PrismaService } from "~/prisma/prisma.service";
 
 @Injectable()
 export class UserService {
-    constructor(
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
-    ) {}
+    constructor(private readonly prismaService: PrismaService) {}
 
     async findOrCreate(telegramId: string): Promise<User> {
-        const existingUser = await this.userRepository.findOne({
+        const existingUser = await this.prismaService.user.findUnique({
             where: { telegramId },
-            relations: ["accounts"],
+            include: { accounts: true },
         });
 
         if (existingUser) {
             return existingUser;
         }
 
-        return this.userRepository.save(new User(telegramId));
+        return this.prismaService.user.create({
+            data: { telegramId },
+            include: { accounts: true },
+        });
     }
 }

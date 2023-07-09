@@ -1,10 +1,9 @@
 import { Module } from "@nestjs/common";
+import { PrismaModule } from "~/prisma/prisma.module";
 import { AccountService } from "./account.service";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { Account } from "./account.entity";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Account])],
+    imports: [PrismaModule],
     providers: [AccountService],
     exports: [AccountService],
 })

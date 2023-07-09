@@ -1,24 +1,28 @@
 import { Injectable } from "@nestjs/common";
-import { Repository } from "typeorm";
-import { Balance } from "./balance.entity";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Account } from "~/account/account.entity";
+import { Account, Balance } from "@prisma/client";
+import { PrismaService } from "~/prisma/prisma.service";
 
 @Injectable()
 export class BalanceService {
-    constructor(
-        @InjectRepository(Balance)
-        private readonly balanceRepository: Repository<Balance>,
-    ) {}
+    constructor(private readonly prismaService: PrismaService) {}
 
     async create(account: Account, sum: number): Promise<Balance> {
-        return this.balanceRepository.save({ account, sum });
+        return this.prismaService.balance.create({
+            data: {
+                account: {
+                    connect: {
+                        id: account.id,
+                    },
+                },
+                sum,
+            },
+        });
     }
 
-    async findOneLastByAccount(account: Account): Promise<Balance | null> {
-        return this.balanceRepository.findOne({
+    findOneLastByAccount(account: Account): Promise<Balance | null> {
+        return this.prismaService.balance.findFirst({
             where: { account: { id: account.id } },
-            order: { createdAt: "DESC" },
+            orderBy: { createdAt: "desc" },
         });
     }
 }

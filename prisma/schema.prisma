@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id         String      @id @default(uuid()) @db.Uuid
+  createdAt  DateTime    @default(now()) @db.Timestamp(3)
+  updatedAt  DateTime    @updatedAt @db.Timestamp(3)
+  name       String
+  currencyId String      @db.Uuid
+  userId     String      @db.Uuid
+  user       User        @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  currency   Currency    @relation(fields: [currencyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  balances   Balance[]
+  operations Operation[]
+
+  @@index([userId])
+  @@index([currencyId])
+}
+
+model Balance {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamp(3)
+  updatedAt DateTime @updatedAt @db.Timestamp(3)
+  sum       Int
+  accountId String   @db.Uuid
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([accountId])
+}
+
+model Currency {
+  id        String    @id @default(uuid()) @db.Uuid
+  createdAt DateTime  @default(now()) @db.Timestamp(3)
+  updatedAt DateTime  @updatedAt @db.Timestamp(3)
+  code      String    @unique
+  accounts  Account[]
+}
+
+model Operation {
+  id         String            @id @default(uuid()) @db.Uuid
+  createdAt  DateTime          @default(now()) @db.Timestamp(3)
+  updatedAt  DateTime          @updatedAt @db.Timestamp(3)
+  type       OperationType
+  sum        Int
+  executedAt DateTime          @db.Timestamp(3)
+  accountId  String            @db.Uuid
+  account    Account           @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([accountId])
+}
+
+model User {
+  id         String    @id @default(uuid()) @db.Uuid
+  createdAt  DateTime  @default(now()) @db.Timestamp(3)
+  updatedAt  DateTime  @updatedAt @db.Timestamp(3)
+  telegramId String    @unique
+  accounts   Account[]
+}
+
+enum OperationType {
+  INCOMING
+  OUTGOING
+}

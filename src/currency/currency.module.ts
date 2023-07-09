@@ -1,10 +1,9 @@
 import { Module } from "@nestjs/common";
+import { PrismaModule } from "~/prisma/prisma.module";
 import { CurrencyService } from "./currency.service";
-import { Currency } from "./currency.entity";
-import { TypeOrmModule } from "@nestjs/typeorm";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Currency])],
+    imports: [PrismaModule],
     providers: [CurrencyService],
     exports: [CurrencyService],
 })

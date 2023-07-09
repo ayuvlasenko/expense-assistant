@@ -1,54 +1,40 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { FindOptionsOrder, Repository } from "typeorm";
-import { Currency } from "./currency.entity";
-import { InjectRepository } from "@nestjs/typeorm";
+import { Currency } from "@prisma/client";
+import { PrismaService } from "~/prisma/prisma.service";
 
 @Injectable()
 export class CurrencyService {
-    constructor(
-        @InjectRepository(Currency)
-        private readonly currencyRepository: Repository<Currency>,
-    ) {}
+    constructor(private readonly prismaService: PrismaService) {}
 
     async findOneOrCreate(code: string): Promise<Currency> {
-        const existingCurrency = await this.currencyRepository.findOneBy({
-            code: code.toUpperCase(),
+        const maybeCode = code.toUpperCase().trim();
+
+        const existingCurrency = await this.prismaService.currency.findUnique({
+            where: {
+                code: maybeCode,
+            },
         });
 
         if (existingCurrency) {
             return existingCurrency;
         }
 
-        if (code.match(/[^\s*A-Z\s*]{3}/)) {
+        if (!/^[A-Z]{3}$/.test(maybeCode)) {
             throw new BadRequestException(
                 "Currency code must contain only uppercase latin letters",
             );
         }
 
-        const currency = new Currency(code.trim().toUpperCase());
-
-        return this.currencyRepository.save(currency);
-    }
-
-    async findOne(code: string): Promise<Currency | null> {
-        return this.currencyRepository.findOneBy({
-            code: code.trim().toUpperCase(),
+        return this.prismaService.currency.create({
+            data: { code: maybeCode },
         });
     }
 
-    async findAndCount(options: {
-        code?: string;
-        skip?: number;
-        limit?: number;
-        order?: FindOptionsOrder<Currency>;
-    }): Promise<[Currency[], number]> {
-        return this.currencyRepository.findAndCount({
+    async findOne(code: string): Promise<Currency | null> {
+        return this.prismaService.currency.findUnique({
             where: {
-                code: options.code,
+                code,
             },
-            order: options.order ?? { code: 1 },
-            skip: options.skip,
-            take: options.limit,
         });
     }
 }

@@ -14,7 +14,6 @@ module.exports = {
     "plugin:sonarjs/recommended",
     "prettier"
   ],
-  "ignorePatterns": ["**/.eslintrc.js"],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": "warn",
     "@typescript-eslint/member-delimiter-style": "error",
@@ -172,11 +171,11 @@ module.exports = {
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    // "project": "./tsconfig.json",
+    "project": "./tsconfig.json",
     "tsconfigRootDir": __dirname,
     "sourceType": "module"
   },
-  "ignorePatterns": ["migration/**"],
+  "ignorePatterns": ["**/.eslintrc.js", "migration/**"],
   "overrides": [
     {
       "files": [

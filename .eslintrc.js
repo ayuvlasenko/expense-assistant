@@ -15,7 +15,7 @@ module.exports = {
     "prettier"
   ],
   "rules": {
-    "@typescript-eslint/explicit-function-return-type": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/member-delimiter-style": "error",
     "@typescript-eslint/member-ordering": "warn",
     "@typescript-eslint/no-base-to-string": "error",

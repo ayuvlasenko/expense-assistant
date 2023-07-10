@@ -6,19 +6,11 @@ import { PrismaService } from "~/prisma/prisma.service";
 export class OperationService {
     constructor(private readonly prismaService: PrismaService) {}
 
-    createIncoming(
-        account: Account,
-        sum: number,
-        executedAt: Date,
-    ): Promise<Operation> {
+    createIncoming(account: Account, sum: number, executedAt: Date) {
         return this.create(OperationType.INCOMING, account, sum, executedAt);
     }
 
-    createOutgoing(
-        account: Account,
-        sum: number,
-        executedAt: Date,
-    ): Promise<Operation> {
+    createOutgoing(account: Account, sum: number, executedAt: Date) {
         return this.create(OperationType.OUTGOING, account, sum, executedAt);
     }
 
@@ -28,7 +20,7 @@ export class OperationService {
         fromSum: number,
         toSum: number,
         executedAt: Date,
-    ): Promise<[from: Operation, to: Operation]> {
+    ) {
         return this.prismaService.$transaction([
             this.create(
                 OperationType.OUTGOING,

@@ -1,12 +1,11 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { Currency } from "@prisma/client";
 import { PrismaService } from "~/prisma/prisma.service";
 
 @Injectable()
 export class CurrencyService {
     constructor(private readonly prismaService: PrismaService) {}
 
-    async findOneOrCreate(code: string): Promise<Currency> {
+    async findOneOrCreate(code: string) {
         const maybeCode = code.toUpperCase().trim();
 
         const existingCurrency = await this.prismaService.currency.findUnique({
@@ -30,7 +29,7 @@ export class CurrencyService {
         });
     }
 
-    async findOne(code: string): Promise<Currency | null> {
+    async findOne(code: string) {
         return this.prismaService.currency.findUnique({
             where: {
                 code,

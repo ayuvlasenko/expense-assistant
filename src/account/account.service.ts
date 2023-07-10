@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { Account, Currency, User } from "@prisma/client";
+import { Currency, User } from "@prisma/client";
 import { PrismaService } from "~/prisma/prisma.service";
 
 @Injectable()
 export class AccountService {
     constructor(private readonly prismaService: PrismaService) {}
 
-    create(name: string, currency: Currency, user: User): Promise<Account> {
+    create(name: string, currency: Currency, user: User) {
         return this.prismaService.account.create({
             data: {
                 name,

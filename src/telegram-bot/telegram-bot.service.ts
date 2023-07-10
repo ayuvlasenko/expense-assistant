@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { Context, Telegraf } from "telegraf";
+import { Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
 import { EnvValidationSchema } from "~/config/env-validation.schema";
 
@@ -23,7 +23,7 @@ export class TelegramBotService implements OnModuleInit {
         this.bot = new Telegraf(botToken);
 
         this.bot.on(message("text"), (ctx) => {
-            ctx.reply(`Hello ${ctx.message.from.first_name}!`);
+            void ctx.reply(`Hello ${ctx.message.from.first_name}!`);
         });
 
         const domain = this.configService.get("TELEGRAM_WEBHOOK_DOMAIN", {

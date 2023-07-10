@@ -43,24 +43,39 @@ model Currency {
 }
 
 model Operation {
-  id         String            @id @default(uuid()) @db.Uuid
-  createdAt  DateTime          @default(now()) @db.Timestamp(3)
-  updatedAt  DateTime          @updatedAt @db.Timestamp(3)
+  id         String        @id @default(uuid()) @db.Uuid
+  createdAt  DateTime      @default(now()) @db.Timestamp(3)
+  updatedAt  DateTime      @updatedAt @db.Timestamp(3)
   type       OperationType
   sum        Int
-  executedAt DateTime          @db.Timestamp(3)
-  accountId  String            @db.Uuid
-  account    Account           @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  executedAt DateTime      @db.Timestamp(3)
+  accountId  String        @db.Uuid
+  account    Account       @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  categoryId String?       @db.Uuid
+  category   Category?     @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([accountId])
 }
 
+model Category {
+  id         String      @id @default(uuid()) @db.Uuid
+  createdAt  DateTime    @default(now()) @db.Timestamp(3)
+  updatedAt  DateTime    @updatedAt @db.Timestamp(3)
+  name       String
+  userId     String      @db.Uuid
+  user       User        @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  operations Operation[]
+
+  @@index([userId])
+}
+
 model User {
-  id         String    @id @default(uuid()) @db.Uuid
-  createdAt  DateTime  @default(now()) @db.Timestamp(3)
-  updatedAt  DateTime  @updatedAt @db.Timestamp(3)
-  telegramId String    @unique
+  id         String     @id @default(uuid()) @db.Uuid
+  createdAt  DateTime   @default(now()) @db.Timestamp(3)
+  updatedAt  DateTime   @updatedAt @db.Timestamp(3)
+  telegramId String     @unique
   accounts   Account[]
+  categories Category[]
 }
 
 enum OperationType {

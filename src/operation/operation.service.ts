@@ -40,6 +40,31 @@ export class OperationService {
         ]);
     }
 
+    async calculateSum(account: Account, startFrom?: Date): Promise<number> {
+        const result = await this.prismaService.operation.groupBy({
+            by: ["type"],
+            where: {
+                account: {
+                    id: account.id,
+                },
+                executedAt: startFrom && {
+                    gte: startFrom,
+                },
+            },
+            _sum: {
+                sum: true,
+            },
+        });
+
+        return result.reduce((sum, item) => {
+            if (item.type === OperationType.INCOMING) {
+                return sum + (item._sum.sum ?? 0);
+            }
+
+            return sum - (item._sum.sum ?? 0);
+        }, 0);
+    }
+
     private create(
         type: OperationType,
         account: Account,

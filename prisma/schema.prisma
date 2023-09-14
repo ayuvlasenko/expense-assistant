@@ -57,6 +57,11 @@ model Operation {
   @@index([accountId])
 }
 
+enum OperationType {
+  INCOMING
+  OUTGOING
+}
+
 model Category {
   id         String      @id @default(uuid()) @db.Uuid
   createdAt  DateTime    @default(now()) @db.Timestamp(3)
@@ -70,15 +75,24 @@ model Category {
 }
 
 model User {
-  id         String     @id @default(uuid()) @db.Uuid
-  createdAt  DateTime   @default(now()) @db.Timestamp(3)
-  updatedAt  DateTime   @updatedAt @db.Timestamp(3)
-  telegramId String     @unique
-  accounts   Account[]
-  categories Category[]
+  id              String           @id @default(uuid()) @db.Uuid
+  createdAt       DateTime         @default(now()) @db.Timestamp(3)
+  updatedAt       DateTime         @updatedAt @db.Timestamp(3)
+  telegramId      String           @unique
+  accounts        Account[]
+  categories      Category[]
+  telegramSession TelegramSession?
 }
 
-enum OperationType {
-  INCOMING
-  OUTGOING
+model TelegramSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamp(3)
+  updatedAt DateTime @updatedAt @db.Timestamp(3)
+  scene     String?
+  step      String?
+  payload   Json?
+  userId    String   @unique @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([userId])
 }

@@ -18,7 +18,7 @@ export class CurrencyService {
             return existingCurrency;
         }
 
-        if (!/^[A-Z]{3}$/.test(maybeCode)) {
+        if (!this.isValid(maybeCode)) {
             throw new BadRequestException(
                 "Currency code must contain only uppercase latin letters",
             );
@@ -27,6 +27,10 @@ export class CurrencyService {
         return this.prismaService.currency.create({
             data: { code: maybeCode },
         });
+    }
+
+    isValid(code: string) {
+        return /^[A-Z]{3}$/.test(code);
     }
 
     async findOne(code: string) {

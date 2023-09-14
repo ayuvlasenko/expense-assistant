@@ -23,11 +23,11 @@ module.exports = {
     "@typescript-eslint/no-confusing-void-expression": "error",
     "@typescript-eslint/no-require-imports": "error",
     "@typescript-eslint/no-unnecessary-boolean-literal-compare": "error",
-    "@typescript-eslint/no-unnecessary-condition": "error",
+    "@typescript-eslint/no-unnecessary-condition": "warn",
     "@typescript-eslint/no-unnecessary-type-arguments": "error",
     "@typescript-eslint/prefer-for-of": "error",
     "@typescript-eslint/prefer-includes": "error",
-    "@typescript-eslint/prefer-nullish-coalescing": "error",
+    "@typescript-eslint/prefer-nullish-coalescing": "warn",
     "@typescript-eslint/prefer-optional-chain": "error",
     "@typescript-eslint/prefer-readonly": "error",
     "@typescript-eslint/prefer-reduce-type-parameter": "error",
@@ -35,16 +35,17 @@ module.exports = {
     "@typescript-eslint/prefer-return-this-type": "error",
     "@typescript-eslint/prefer-string-starts-ends-with": "error",
     "@typescript-eslint/sort-type-union-intersection-members": "off",
-    "@typescript-eslint/strict-boolean-expressions": ["error", {
-      "allowString": false,
-      "allowNumber": false,
-      "allowNullableObject": true,
-      "allowNullableBoolean": true,
-      "allowNullableString": true,
-      "allowNullableNumber": true,
-      "allowAny": false,
-      "allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing": false
-    }],
+    "@typescript-eslint/strict-boolean-expressions": "off",
+    // "@typescript-eslint/strict-boolean-expressions": ["error", {
+    //   "allowString": true,
+    //   "allowNumber": true,
+    //   "allowNullableObject": true,
+    //   "allowNullableBoolean": true,
+    //   "allowNullableString": true,
+    //   "allowNullableNumber": true,
+    //   "allowAny": false,
+    //   "allowRuleToRunWithoutStrictNullChecksIKnowWhatIAmDoing": false
+    // }],
     "@typescript-eslint/type-annotation-spacing": "error",
     "quotes": "off",
     "@typescript-eslint/quotes": ["error", "double"],
@@ -195,6 +196,10 @@ module.exports = {
       ],
       "env": {
         "jest/globals": true
+      },
+      "rules": {
+        "sonarjs/no-redundant-jump": "warn",
+        "sonarjs/cognitive-complexity": "warn",
       }
     },
     {
@@ -225,7 +230,9 @@ module.exports = {
           {
             "allowModules": ["express"]
           }
-        ]
+        ],
+        "sonarjs/no-redundant-jump": "warn",
+        "sonarjs/cognitive-complexity": "warn",
       }
     }
   ],

@@ -1,17 +1,39 @@
 import { Injectable } from "@nestjs/common";
-import { Account, Operation, OperationType } from "@prisma/client";
+import { Account, Category, OperationType } from "@prisma/client";
 import { PrismaService } from "~/prisma/prisma.service";
 
 @Injectable()
 export class OperationService {
     constructor(private readonly prismaService: PrismaService) {}
 
-    createIncoming(account: Account, sum: number, executedAt: Date) {
-        return this.create(OperationType.INCOMING, account, sum, executedAt);
+    createIncoming(
+        account: Account,
+        sum: number,
+        executedAt: Date,
+        category?: Category,
+    ) {
+        return this.create(
+            OperationType.INCOMING,
+            account,
+            sum,
+            executedAt,
+            category,
+        );
     }
 
-    createOutgoing(account: Account, sum: number, executedAt: Date) {
-        return this.create(OperationType.OUTGOING, account, sum, executedAt);
+    createOutgoing(
+        account: Account,
+        sum: number,
+        executedAt: Date,
+        category?: Category,
+    ) {
+        return this.create(
+            OperationType.OUTGOING,
+            account,
+            sum,
+            executedAt,
+            category,
+        );
     }
 
     createTransfer(
@@ -20,6 +42,7 @@ export class OperationService {
         fromSum: number,
         toSum: number,
         executedAt: Date,
+        category?: Category,
     ) {
         return this.prismaService.$transaction([
             this.create(
@@ -27,8 +50,15 @@ export class OperationService {
                 fromAccount,
                 fromSum,
                 executedAt,
+                category,
             ),
-            this.create(OperationType.INCOMING, toAccount, toSum, executedAt),
+            this.create(
+                OperationType.INCOMING,
+                toAccount,
+                toSum,
+                executedAt,
+                category,
+            ),
         ]);
     }
 
@@ -62,6 +92,7 @@ export class OperationService {
         account: Account,
         sum: number,
         executedAt: Date,
+        category?: Category,
     ) {
         return this.prismaService.operation.create({
             data: {
@@ -69,6 +100,11 @@ export class OperationService {
                 account: {
                     connect: {
                         id: account.id,
+                    },
+                },
+                category: category && {
+                    connect: {
+                        id: category.id,
                     },
                 },
                 sum,

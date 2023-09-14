@@ -9,14 +9,18 @@ export const telegramSessionStorage = new AsyncLocalStorage<TelegramSession>();
 export class TelegramSessionService {
     constructor(private readonly prismService: PrismaService) {}
 
-    static getCurrent(): TelegramSession {
-        const currentSession = telegramSessionStorage.getStore();
+    static getCurrentOrFail(): TelegramSession {
+        const currentSession = this.getCurrent();
 
         if (!currentSession) {
             throw new Error("Session not found");
         }
 
         return currentSession;
+    }
+
+    static getCurrent(): TelegramSession | undefined {
+        return telegramSessionStorage.getStore();
     }
 
     async clearCurrent(): Promise<void> {

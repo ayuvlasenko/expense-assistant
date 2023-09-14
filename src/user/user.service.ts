@@ -9,14 +9,18 @@ export const userStorage = new AsyncLocalStorage<User>();
 export class UserService {
     constructor(private readonly prismaService: PrismaService) {}
 
-    static getCurrent(): User {
-        const currentUser = userStorage.getStore();
+    static getCurrentOrFail(): User {
+        const currentUser = this.getCurrent();
 
         if (!currentUser) {
             throw new NotFoundException("User not found");
         }
 
         return currentUser;
+    }
+
+    static getCurrent(): User | undefined {
+        return userStorage.getStore();
     }
 
     async findOrCreate(telegramId: string) {

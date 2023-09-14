@@ -171,7 +171,7 @@ export function reply(
 ): (context: Context, next: () => MaybePromise<void>) => MaybePromise<void> {
     return async (context, next) => {
         const texts = Array.isArray(maybeTexts) ? maybeTexts : [maybeTexts];
-        const user = UserService.getCurrent();
+        const user = UserService.getCurrentOrFail();
 
         for (const text of texts) {
             await context.reply(

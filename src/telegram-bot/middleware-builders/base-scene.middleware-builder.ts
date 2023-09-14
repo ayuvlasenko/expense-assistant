@@ -40,7 +40,7 @@ export abstract class BaseSceneMiddlewareBuilder {
             );
         }
 
-        const session = TelegramSessionService.getCurrent();
+        const session = TelegramSessionService.getCurrentOrFail();
         const state: State = {
             scene: scene.name,
             step: step.name,
@@ -48,7 +48,7 @@ export abstract class BaseSceneMiddlewareBuilder {
                 typeof nameOrIndex === "number"
                     ? nameOrIndex
                     : steps.findIndex((item) => item.name === nameOrIndex),
-            user: UserService.getCurrent(),
+            user: UserService.getCurrentOrFail(),
             payload: session.payload ?? {},
         };
 
@@ -105,7 +105,7 @@ export abstract class BaseSceneMiddlewareBuilder {
     }
 
     protected async saveState(state: State): Promise<void> {
-        const session = TelegramSessionService.getCurrent();
+        const session = TelegramSessionService.getCurrentOrFail();
 
         session.scene = state.scene;
         session.step = state.step;

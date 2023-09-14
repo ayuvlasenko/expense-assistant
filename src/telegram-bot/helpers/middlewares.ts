@@ -1,7 +1,6 @@
 import { InternalServerErrorException } from "@nestjs/common";
 import { User } from "@prisma/client";
 import { Context } from "telegraf";
-import { Update } from "telegraf/typings/core/types/typegram";
 import { MaybeArray, MaybePromise } from "~/common/types";
 import { UserService } from "~/user/user.service";
 import {
@@ -10,6 +9,7 @@ import {
     BeforeHandleInputMiddleware,
     Middleware,
 } from "../types/scenes";
+import { mergeFilters } from "./filters";
 
 export async function runMiddlewares<TState>(
     context: Context,
@@ -129,25 +129,6 @@ export function nextOn(
         if (predicate(context.update)) {
             return actions.next();
         }
-    };
-}
-
-function mergeFilters(
-    filters: ((update: Context["update"]) => boolean)[],
-): (update: Update) => boolean {
-    return (update: Update): boolean => {
-        for (const filter of filters) {
-            if (
-                typeof filter === "string"
-                    ? filter in update ||
-                      ("message" in update && filter in update.message)
-                    : filter(update)
-            ) {
-                return true;
-            }
-        }
-
-        return false;
     };
 }
 

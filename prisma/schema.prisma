@@ -79,6 +79,7 @@ model User {
   createdAt       DateTime         @default(now()) @db.Timestamp(3)
   updatedAt       DateTime         @updatedAt @db.Timestamp(3)
   telegramId      String           @unique
+  isBanned        Boolean          @default(true)
   accounts        Account[]
   categories      Category[]
   telegramSession TelegramSession?

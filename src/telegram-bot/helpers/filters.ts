@@ -49,3 +49,22 @@ export function command(name?: string) {
         return !name || cmd === name;
     };
 }
+
+export function mergeFilters(
+    filters: ((update: Context["update"]) => boolean)[],
+): (update: Update) => boolean {
+    return (update: Update): boolean => {
+        for (const filter of filters) {
+            if (
+                typeof filter === "string"
+                    ? filter in update ||
+                      ("message" in update && filter in update.message)
+                    : filter(update)
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+}

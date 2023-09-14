@@ -9,8 +9,8 @@ export const userStorage = new AsyncLocalStorage<User>();
 export class UserService {
     constructor(private readonly prismaService: PrismaService) {}
 
-    static getCurrent(): User {
-        const currentUser = userStorage.getStore();
+    static getCurrentOrFail(): User {
+        const currentUser = this.getCurrent();
 
         if (!currentUser) {
             throw new NotFoundException("User not found");
@@ -19,7 +19,11 @@ export class UserService {
         return currentUser;
     }
 
-    async findOrCreate(telegramId: string) {
+    static getCurrent(): User | undefined {
+        return userStorage.getStore();
+    }
+
+    async findOrCreate(telegramId: string, isBanned = true) {
         const existingUser = await this.prismaService.user.findUnique({
             where: { telegramId },
             include: { accounts: true },
@@ -30,7 +34,15 @@ export class UserService {
         }
 
         return this.prismaService.user.create({
-            data: { telegramId },
+            data: { telegramId, isBanned },
+            include: { accounts: true },
+        });
+    }
+
+    async unban(user: User) {
+        return this.prismaService.user.update({
+            where: { id: user.id },
+            data: { isBanned: false },
             include: { accounts: true },
         });
     }

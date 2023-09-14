@@ -14,6 +14,10 @@ export class SessionMiddlewareBuilder {
         return async (_context, next) => {
             const user = UserService.getCurrent();
 
+            if (!user) {
+                return next();
+            }
+
             const session =
                 (await this.sessionService.find(user)) ??
                 (await this.sessionService.createOrUpdate({

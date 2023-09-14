@@ -19,7 +19,7 @@ export class EnterSceneMiddlewareBuilder extends BaseSceneMiddlewareBuilder {
         return async (context, next) => {
             const session = TelegramSessionService.getCurrent();
 
-            if (session.scene) {
+            if (!session || session.scene) {
                 return next();
             }
 
@@ -29,7 +29,7 @@ export class EnterSceneMiddlewareBuilder extends BaseSceneMiddlewareBuilder {
                 }
 
                 const state: Pick<State, "user"> = {
-                    user: UserService.getCurrent(),
+                    user: UserService.getCurrentOrFail(),
                 };
 
                 if (
@@ -75,7 +75,7 @@ export class EnterSceneMiddlewareBuilder extends BaseSceneMiddlewareBuilder {
                 commonError.message,
                 commonError.stack,
                 {
-                    user: UserService.getCurrent(),
+                    user: UserService.getCurrentOrFail(),
                     sceneName: scene.name,
                     update: context.update,
                 },

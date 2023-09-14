@@ -4,10 +4,10 @@ import {
     FilteredContext,
     NarrowedContext,
 } from "telegraf/typings/context";
-import { Update } from "telegraf/typings/core/types/typegram";
 import * as tt from "telegraf/typings/telegram-types";
 import { Guard } from "telegraf/typings/util";
 import { MaybeArray } from "~/common/types";
+import { mergeFilters } from "./filters";
 
 type MatchedContext<
     C extends Context,
@@ -16,30 +16,24 @@ type MatchedContext<
 
 export type TextMessageContext = MatchedContext<Context, "text">;
 
-export function assertContextType<Filter extends Guard<Context["update"]>>(
+export function assertContext<Filter extends Guard<Context["update"]>>(
     context: Context,
     maybeFilters: MaybeArray<Filter>,
 ): asserts context is FilteredContext<Context, Filter> {
-    const filters = Array.isArray(maybeFilters) ? maybeFilters : [maybeFilters];
-
-    const predicate = (update: Update): update is Update => {
-        for (const filter of filters) {
-            if (
-                typeof filter === "string"
-                    ? filter in update ||
-                      ("message" in update && filter in update.message)
-                    : filter(update)
-            ) {
-                return true;
-            }
-        }
-
-        return false;
-    };
-
-    if (!predicate(context.update)) {
+    if (!filterContext(context, maybeFilters)) {
         throw new InternalServerErrorException(
             "Context doesn't match any of the filters",
         );
     }
+}
+
+export function filterContext<Filter extends Guard<Context["update"]>>(
+    context: Context,
+    maybeFilters: MaybeArray<Filter>,
+): context is FilteredContext<Context, Filter> {
+    const filters = Array.isArray(maybeFilters) ? maybeFilters : [maybeFilters];
+
+    const predicate = mergeFilters(filters);
+
+    return predicate(context.update);
 }

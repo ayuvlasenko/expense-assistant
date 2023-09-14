@@ -27,4 +27,16 @@ export class AccountService {
             },
         });
     }
+
+    async findAll(user: User) {
+        return this.prismaService.account.findMany({
+            where: {
+                userId: user.id,
+            },
+            include: {
+                currency: true,
+                user: true,
+            },
+        });
+    }
 }

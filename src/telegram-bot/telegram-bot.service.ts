@@ -90,6 +90,8 @@ export class TelegramBotService
             if (commands.length) {
                 await this.bot.telegram.setMyCommands(commands);
             }
+        } else {
+            await this.bot.telegram.deleteMyCommands();
         }
 
         this.bot.use(this.composer.middleware());

@@ -103,10 +103,8 @@ export function useIf(
 }
 
 export function exitOn(
-    maybeFilters: MaybeArray<(update: Context["update"]) => boolean>,
+    ...filters: ((update: Context["update"]) => boolean)[]
 ): (context: Context, actions: BeforeHandleInputActions) => MaybePromise<void> {
-    const filters = Array.isArray(maybeFilters) ? maybeFilters : [maybeFilters];
-
     const predicate = mergeFilters(filters);
 
     return (context, actions) => {
@@ -119,10 +117,8 @@ export function exitOn(
 }
 
 export function nextOn(
-    maybeFilters: MaybeArray<(update: Context["update"]) => boolean>,
+    ...filters: ((update: Context["update"]) => boolean)[]
 ): (context: Context, actions: BeforeHandleInputActions) => MaybePromise<void> {
-    const filters = Array.isArray(maybeFilters) ? maybeFilters : [maybeFilters];
-
     const predicate = mergeFilters(filters);
 
     return (context, actions) => {
@@ -133,25 +129,23 @@ export function nextOn(
 }
 
 export function replyOn(
-    maybeFilters: MaybeArray<(update: Context["update"]) => boolean>,
     maybeTexts: MaybeArray<string | ((user: User) => MaybePromise<string>)>,
+    ...filters: ((update: Context["update"]) => boolean)[]
 ): (context: Context, next: () => MaybePromise<void>) => MaybePromise<void> {
-    const predicate = mergeFilters(
-        Array.isArray(maybeFilters) ? maybeFilters : [maybeFilters],
-    );
+    const predicate = mergeFilters(filters);
+    const texts = Array.isArray(maybeTexts) ? maybeTexts : [maybeTexts];
 
     return async (context, next) => {
         return predicate(context.update)
-            ? reply(maybeTexts)(context, next)
+            ? reply(...texts)(context, next)
             : next();
     };
 }
 
 export function reply(
-    maybeTexts: MaybeArray<string | ((user: User) => MaybePromise<string>)>,
+    ...texts: (string | ((user: User) => MaybePromise<string>))[]
 ): (context: Context, next: () => MaybePromise<void>) => MaybePromise<void> {
     return async (context, next) => {
-        const texts = Array.isArray(maybeTexts) ? maybeTexts : [maybeTexts];
         const user = UserService.getCurrentOrFail();
 
         for (const text of texts) {

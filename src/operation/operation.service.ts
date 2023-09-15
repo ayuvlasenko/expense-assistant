@@ -80,10 +80,10 @@ export class OperationService {
 
         return result.reduce((sum, item) => {
             if (item.type === OperationType.INCOMING) {
-                return sum + (item._sum.sum ?? 0);
+                return sum + (item._sum.sum?.toNumber() ?? 0);
             }
 
-            return sum - (item._sum.sum ?? 0);
+            return sum - (item._sum.sum?.toNumber() ?? 0);
         }, 0);
     }
 

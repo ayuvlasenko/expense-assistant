@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Balance" ALTER COLUMN "sum" SET DATA TYPE DECIMAL(14,2);
+
+-- AlterTable
+ALTER TABLE "Operation" ALTER COLUMN "sum" SET DATA TYPE DECIMAL(14,2);

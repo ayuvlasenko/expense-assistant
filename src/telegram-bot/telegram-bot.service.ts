@@ -12,7 +12,7 @@ import { EnterSceneMiddlewareBuilder } from "./middleware-builders/enter-scene.m
 import { HandleStepInputMiddlewareBuilder } from "./middleware-builders/handle-step-input.middleware-builder";
 import { SessionMiddlewareBuilder } from "./middleware-builders/session.middleware-builder";
 import { UserMiddlewareBuilder } from "./middleware-builders/user.middleware-builder";
-import { Command, Scene } from "./types/scenes";
+import { CommandDescription, Scene } from "./types/scenes";
 
 @Injectable()
 export class TelegramBotService
@@ -23,6 +23,7 @@ export class TelegramBotService
     private readonly _composer = new Composer();
     private isLaunched = false;
     private readonly logger = new Logger(this.constructor.name);
+    private readonly commands: CommandDescription[] = [];
 
     constructor(
         private readonly configService: ConfigService<
@@ -60,7 +61,31 @@ export class TelegramBotService
             );
         }
 
+        if (scene.commandDescription) {
+            this.addCommandDescription(scene.commandDescription);
+        }
+
         this.scenes.push(scene);
+    }
+
+    addCommandDescription(command: CommandDescription) {
+        if (this.isLaunched) {
+            throw new InternalServerErrorException(
+                "Can't set commands after launching bot",
+            );
+        }
+
+        const existingCommand = this.commands.find(
+            (item) => item.command === command.command,
+        );
+
+        if (existingCommand) {
+            throw new InternalServerErrorException(
+                `Command with name "${command.command}" already exists`,
+            );
+        }
+
+        this.commands.push(command);
     }
 
     onModuleInit(): void {
@@ -77,19 +102,15 @@ export class TelegramBotService
             this.sessionMiddlewareBuilder.build(),
         );
 
-        if (this.scenes.length > 0) {
+        if (this.scenes.length) {
             this.bot.use(
                 this.enterSceneMiddlewareBuilder.build(this.scenes),
                 this.handleStepInputMiddlewareBuilder.build(this.scenes),
             );
+        }
 
-            const commands = this.scenes
-                .map(({ command }) => command)
-                .filter((command): command is Command => !!command);
-
-            if (commands.length) {
-                await this.bot.telegram.setMyCommands(commands);
-            }
+        if (this.commands.length) {
+            await this.bot.telegram.setMyCommands(this.commands);
         } else {
             await this.bot.telegram.deleteMyCommands();
         }

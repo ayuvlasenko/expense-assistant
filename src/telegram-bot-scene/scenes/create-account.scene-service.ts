@@ -39,7 +39,7 @@ export class CreateAccountSceneService {
     build(): Scene<CreateAccountScenePayload> {
         return {
             name: "create-account",
-            command: {
+            commandDescription: {
                 command: "create_account",
                 description: "Create account",
             },

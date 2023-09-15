@@ -5,13 +5,13 @@ import { MaybeArray, MaybePromise } from "~/common/types";
 export interface Scene<TPayload = unknown> {
     name: string;
     shouldBeUsed: (context: Context) => MaybePromise<boolean>;
-    command?: Command;
+    commandDescription?: CommandDescription;
     before?: MaybeArray<Middleware<BeforeSceneState>>;
     steps: MaybeArray<Step<TPayload>>;
     after?: MaybeArray<AfterSceneMiddleware<AfterSceneState<TPayload>>>;
 }
 
-export interface Command {
+export interface CommandDescription {
     command: string;
     description: string;
 }

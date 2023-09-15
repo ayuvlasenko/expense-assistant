@@ -4,6 +4,7 @@ import { envValidationSchema } from "./config/env-validation.schema";
 import { CurrencyModule } from "./currency/currency.module";
 import { TelegramBotModule } from "./telegram-bot/telegram-bot.module";
 import { TelegramBotSceneModule } from "./telegram-bot-scene/telegram-bot-scene.module";
+import { TelegramBotCommandModule } from "./telegram-bot-command/telegram-bot-command.module";
 
 @Module({
     imports: [
@@ -11,6 +12,7 @@ import { TelegramBotSceneModule } from "./telegram-bot-scene/telegram-bot-scene.
             validationSchema: envValidationSchema,
         }),
         CurrencyModule,
+        TelegramBotCommandModule,
         TelegramBotModule,
         TelegramBotSceneModule,
     ],

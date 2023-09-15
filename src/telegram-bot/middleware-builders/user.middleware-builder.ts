@@ -32,7 +32,8 @@ export class UserMiddlewareBuilder {
                 });
             }
 
-            if (!filterContext(context, command("start"))) {
+            const isStartCommand = filterContext(context, command("start"));
+            if (!isStartCommand) {
                 return;
             }
 
@@ -46,7 +47,9 @@ export class UserMiddlewareBuilder {
 
             user = await this.userService.unban(user);
 
-            await context.reply("Hi! Feel free to use the bot");
+            return userStorage.run(user, () => {
+                return next();
+            });
         };
     }
 }

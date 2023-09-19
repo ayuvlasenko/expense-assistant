@@ -48,9 +48,12 @@ export async function runBeforeHandleInputMiddlewares<TState>(
     let actionResult: ActionResult<BeforeHandleInputActions> | undefined;
     let allMiddlewaresAreExecuted = false;
 
-    const actions: Pick<BeforeHandleInputActions, "exit"> = {
+    const actions: Pick<BeforeHandleInputActions, "exit" | "skip"> = {
         exit: () => {
             actionResult = { type: "exit" };
+        },
+        skip: () => {
+            actionResult = { type: "skip" };
         },
     };
 
@@ -110,6 +113,20 @@ export function exitOn(
     return (context, actions) => {
         if (predicate(context.update)) {
             return actions.exit();
+        }
+
+        return actions.next();
+    };
+}
+
+export function skipOn(
+    ...filters: ((update: Context["update"]) => boolean)[]
+): (context: Context, actions: BeforeHandleInputActions) => MaybePromise<void> {
+    const predicate = mergeFilters(filters);
+
+    return (context, actions) => {
+        if (predicate(context.update)) {
+            return actions.skip();
         }
 
         return actions.next();

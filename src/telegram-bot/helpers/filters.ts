@@ -2,17 +2,17 @@ import { Context } from "telegraf";
 import { message as telegrafMessage } from "telegraf/filters";
 import { Message, Update } from "telegraf/typings/core/types/typegram";
 
-export function message(...args: Parameters<typeof telegrafMessage>) {
-    return (
-        update: Context["update"],
-    ): update is Update.MessageUpdate<Message.TextMessage> => {
+// modified telegraf's message filter to ignore commands
+export const message = ((...args: Parameters<typeof telegrafMessage>) => {
+    return (update: Context["update"]) => {
         if (!telegrafMessage(...args)(update)) {
             return false;
         }
 
         return !command()(update);
     };
-}
+}) as typeof telegrafMessage;
+
 export function command(name?: string) {
     return (
         update: Context["update"],

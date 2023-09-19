@@ -11,6 +11,7 @@ import {
     nextOn,
     reply,
     replyOn,
+    skipOn,
     useIf,
 } from "~/telegram-bot/helpers/middlewares";
 import { assertContext } from "~/telegram-bot/helpers/types";
@@ -109,14 +110,11 @@ export class CreateAccountSceneService {
             onEnter: reply("What is the initial sum? (or /skip)"),
             beforeHandleInput: [
                 exitOn(command("cancel")),
-                nextOn(message("text"), command("skip")),
+                skipOn(command("skip")),
+                nextOn(message("text")),
             ],
             handleInput: async (context, actions, state) => {
-                assertContext(context, message("text"), command("skip"));
-
-                if (context.message.text === "/skip") {
-                    return actions.next();
-                }
+                assertContext(context, message("text"));
 
                 const maybeSum = parseNumber(context.message.text);
 
@@ -140,7 +138,7 @@ export class CreateAccountSceneService {
         state: AfterSceneState<CreateAccountScenePayload>,
         actionResult: ActionResult<BeforeHandleInputActions>,
     ): Promise<void> {
-        if (actionResult.type !== "next") {
+        if (actionResult.type !== "next" && actionResult.type !== "skip") {
             return next();
         }
 

@@ -11,6 +11,7 @@ import { TelegramSessionService } from "../session/telegram-session.service";
 import {
     ActionResult,
     AfterSceneState,
+    BeforeHandleInputActions,
     HandleInputActions,
     Scene,
     State,
@@ -102,9 +103,7 @@ export class HandleStepInputMiddlewareBuilder extends BaseSceneMiddlewareBuilder
         context: Context,
         step: Step,
         state: State,
-    ): Promise<
-        ActionResult<Pick<HandleInputActions, "next" | "exit">> | undefined
-    > {
+    ): Promise<ActionResult<BeforeHandleInputActions> | undefined> {
         let beforeHandleInput = step.beforeHandleInput ?? [];
         if (!Array.isArray(beforeHandleInput)) {
             beforeHandleInput = [beforeHandleInput];

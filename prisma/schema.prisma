@@ -11,6 +11,7 @@ model Account {
   id         String      @id @default(uuid()) @db.Uuid
   createdAt  DateTime    @default(now()) @db.Timestamp(3)
   updatedAt  DateTime    @updatedAt @db.Timestamp(3)
+  deletedAt  DateTime?   @db.Timestamp(3)
   name       String
   currencyId String      @db.Uuid
   userId     String      @db.Uuid
@@ -46,6 +47,7 @@ model Operation {
   id         String        @id @default(uuid()) @db.Uuid
   createdAt  DateTime      @default(now()) @db.Timestamp(3)
   updatedAt  DateTime      @updatedAt @db.Timestamp(3)
+  deletedAt  DateTime?     @db.Timestamp(3)
   type       OperationType
   sum        Decimal       @db.Decimal(14, 2)
   executedAt DateTime      @db.Timestamp(3)

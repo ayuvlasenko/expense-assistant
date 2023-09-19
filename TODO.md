@@ -2,6 +2,7 @@ today:
 - add invites generation
 - add limits
 - fix null in telegram session payload
+- move softDelete to prisma extension
 
 tomorrow:
 - add logs (change output)

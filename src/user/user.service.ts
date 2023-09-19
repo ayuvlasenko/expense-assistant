@@ -26,7 +26,7 @@ export class UserService {
     async findOrCreate(telegramId: string, isBanned = true) {
         const existingUser = await this.prismaService.user.findUnique({
             where: { telegramId },
-            include: { accounts: true },
+            include: { accounts: { where: { deletedAt: null } } },
         });
 
         if (existingUser) {
@@ -35,7 +35,7 @@ export class UserService {
 
         return this.prismaService.user.create({
             data: { telegramId, isBanned },
-            include: { accounts: true },
+            include: { accounts: { where: { deletedAt: null } } },
         });
     }
 
@@ -43,7 +43,7 @@ export class UserService {
         return this.prismaService.user.update({
             where: { id: user.id },
             data: { isBanned: false },
-            include: { accounts: true },
+            include: { accounts: { where: { deletedAt: null } } },
         });
     }
 }

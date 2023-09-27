@@ -1,16 +1,18 @@
-import { Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable } from "@nestjs/common";
 import { Category, User } from "@prisma/client";
+import { LimitService } from "~/limit/limit.service";
 import { PrismaService } from "~/prisma/prisma.service";
 
 @Injectable()
 export class CategoryService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly limitService: LimitService,
+        private readonly prisma: PrismaService,
+    ) {}
 
-    async findOrCreate(name: string, user: User): Promise<Category> {
-        const category = await this.findOne(name, user);
-
-        if (category) {
-            return category;
+    async create(name: string, user: User): Promise<Category> {
+        if (await this.hasReachedLimit(user)) {
+            throw new ForbiddenException("Categories limit reached");
         }
 
         return this.prisma.category.create({
@@ -40,5 +42,19 @@ export class CategoryService {
                 createdAt: "desc",
             },
         });
+    }
+
+    async hasReachedLimit(user: User): Promise<boolean> {
+        const categoriesLimit = await this.limitService.categoriesLimit();
+
+        const categoriesCount = await this.prisma.category.count({
+            where: {
+                user: {
+                    id: user.id,
+                },
+            },
+        });
+
+        return categoriesCount >= categoriesLimit;
     }
 }

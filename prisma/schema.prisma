@@ -100,3 +100,16 @@ model TelegramSession {
 
   @@index([userId])
 }
+
+enum LimitCategory {
+  ACCOUNTS
+  CATEGORIES
+}
+
+model Limit {
+  id        String        @id @default(uuid()) @db.Uuid
+  createdAt DateTime      @default(now()) @db.Timestamp(3)
+  updatedAt DateTime      @updatedAt @db.Timestamp(3)
+  category  LimitCategory
+  value     Int
+}

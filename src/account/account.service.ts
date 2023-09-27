@@ -1,9 +1,11 @@
 import {
     BadRequestException,
+    ForbiddenException,
     Injectable,
     NotFoundException,
 } from "@nestjs/common";
 import { Currency, Prisma, User } from "@prisma/client";
+import { LimitService } from "~/limit/limit.service";
 import { PrismaService } from "~/prisma/prisma.service";
 
 const accountInclude = Prisma.validator<Prisma.AccountInclude>()({
@@ -16,9 +18,20 @@ export type Account = Prisma.AccountGetPayload<{
 
 @Injectable()
 export class AccountService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly limitService: LimitService,
+        private readonly prismaService: PrismaService,
+    ) {}
 
-    create(name: string, currency: Currency, user: User): Promise<Account> {
+    async create(
+        name: string,
+        currency: Currency,
+        user: User,
+    ): Promise<Account> {
+        if (await this.hasReachedLimit(user)) {
+            throw new ForbiddenException("Accounts limit reached");
+        }
+
         return this.prismaService.account.create({
             data: {
                 name,
@@ -38,6 +51,19 @@ export class AccountService {
                 user: true,
             },
         });
+    }
+
+    async hasReachedLimit(user: User): Promise<boolean> {
+        const accountsLimit = await this.limitService.accountsLimit();
+
+        const accountsCount = await this.prismaService.account.count({
+            where: {
+                userId: user.id,
+                deletedAt: null,
+            },
+        });
+
+        return accountsCount >= accountsLimit;
     }
 
     update(

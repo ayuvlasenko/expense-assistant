@@ -79,6 +79,13 @@ export class HandleStepInputMiddlewareBuilder extends BaseSceneMiddlewareBuilder
                 return;
             }
 
+            if (beforeHandleInputActionResult.type === "skip") {
+                await this.handleStepAction(context, scene, state, {
+                    type: "next",
+                });
+                return;
+            }
+
             const actionResult = await this.runInputHandler(
                 context,
                 step,

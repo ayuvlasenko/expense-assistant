@@ -18,7 +18,8 @@ export class UserMiddlewareBuilder {
 
     build(): Middleware<Context> {
         return async (context, next) => {
-            const telegramId = context.message?.from.id;
+            const telegramId =
+                context.message?.from.id ?? context.callbackQuery?.from.id;
 
             if (!telegramId) {
                 return next();

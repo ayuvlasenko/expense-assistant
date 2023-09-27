@@ -36,6 +36,7 @@ export type BeforeHandleInputMiddleware<TState = unknown> = (
 
 export interface BeforeHandleInputActions {
     next: () => MaybePromise<void>;
+    skip: () => MaybePromise<void>;
     exit: () => MaybePromise<void>;
 }
 
@@ -43,6 +44,7 @@ export interface State<TPayload = unknown> {
     scene: string;
     step: string;
     stepIndex: number;
+    stepEnteredAt: Date;
     user: User;
     payload: Partial<TPayload>;
 }
@@ -53,7 +55,9 @@ export type InputHandler<TState = unknown> = (
     state: TState,
 ) => Promise<void> | void;
 
-export interface HandleInputActions extends BeforeHandleInputActions {
+export interface HandleInputActions {
+    next: () => MaybePromise<void>;
+    exit: () => MaybePromise<void>;
     back: () => MaybePromise<void>;
     selectStep: (nameOrIndex: string | number) => MaybePromise<void>;
     repeat: () => MaybePromise<void>;

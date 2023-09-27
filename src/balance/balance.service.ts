@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { Account } from "@prisma/client";
 import { PrismaService } from "~/prisma/prisma.service";
 
@@ -7,6 +7,10 @@ export class BalanceService {
     constructor(private readonly prismaService: PrismaService) {}
 
     async create(account: Account, sum: number) {
+        if (account.deletedAt) {
+            throw new BadRequestException("Account is deleted");
+        }
+
         return this.prismaService.balance.create({
             data: {
                 account: {

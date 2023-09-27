@@ -11,6 +11,7 @@ model Account {
   id         String      @id @default(uuid()) @db.Uuid
   createdAt  DateTime    @default(now()) @db.Timestamp(3)
   updatedAt  DateTime    @updatedAt @db.Timestamp(3)
+  deletedAt  DateTime?   @db.Timestamp(3)
   name       String
   currencyId String      @db.Uuid
   userId     String      @db.Uuid
@@ -21,6 +22,7 @@ model Account {
 
   @@index([userId])
   @@index([currencyId])
+  @@index([userId, createdAt(sort: Desc)])
 }
 
 model Balance {
@@ -46,6 +48,7 @@ model Operation {
   id         String        @id @default(uuid()) @db.Uuid
   createdAt  DateTime      @default(now()) @db.Timestamp(3)
   updatedAt  DateTime      @updatedAt @db.Timestamp(3)
+  deletedAt  DateTime?     @db.Timestamp(3)
   type       OperationType
   sum        Decimal       @db.Decimal(14, 2)
   executedAt DateTime      @db.Timestamp(3)
@@ -55,6 +58,7 @@ model Operation {
   category   Category?     @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([accountId])
+  @@index([accountId, createdAt(sort: Desc)])
 }
 
 enum OperationType {
@@ -72,6 +76,7 @@ model Category {
   operations Operation[]
 
   @@index([userId])
+  @@index([userId, createdAt(sort: Desc)])
 }
 
 model User {
@@ -86,14 +91,28 @@ model User {
 }
 
 model TelegramSession {
-  id        String   @id @default(uuid()) @db.Uuid
-  createdAt DateTime @default(now()) @db.Timestamp(3)
-  updatedAt DateTime @updatedAt @db.Timestamp(3)
-  scene     String?
-  step      String?
-  payload   Json?
-  userId    String   @unique @db.Uuid
-  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id            String    @id @default(uuid()) @db.Uuid
+  createdAt     DateTime  @default(now()) @db.Timestamp(3)
+  updatedAt     DateTime  @updatedAt @db.Timestamp(3)
+  scene         String?
+  step          String?
+  stepEnteredAt DateTime?
+  payload       Json?
+  userId        String    @unique @db.Uuid
+  user          User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([userId])
+}
+
+enum LimitCategory {
+  ACCOUNTS
+  CATEGORIES
+}
+
+model Limit {
+  id        String        @id @default(uuid()) @db.Uuid
+  createdAt DateTime      @default(now()) @db.Timestamp(3)
+  updatedAt DateTime      @updatedAt @db.Timestamp(3)
+  category  LimitCategory
+  value     Int
 }

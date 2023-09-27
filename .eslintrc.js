@@ -198,8 +198,10 @@ module.exports = {
         "jest/globals": true
       },
       "rules": {
+        "@typescript-eslint/no-unsafe-assignment": "warn",
         "sonarjs/no-redundant-jump": "warn",
         "sonarjs/cognitive-complexity": "warn",
+        "sonarjs/no-duplicate-string": "warn",
       }
     },
     {
@@ -233,6 +235,7 @@ module.exports = {
         ],
         "sonarjs/no-redundant-jump": "warn",
         "sonarjs/cognitive-complexity": "warn",
+        "sonarjs/no-duplicate-string": "warn",
       }
     }
   ],

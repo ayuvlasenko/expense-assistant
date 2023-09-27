@@ -3,13 +3,17 @@ import { User } from "@prisma/client";
 import { Context } from "telegraf";
 import { MaybeArray, MaybePromise } from "~/common/types";
 import { UserService } from "~/user/user.service";
+import { ButtonType } from "../buttons/enums/button-type.enum";
+import { TelegramButtonService } from "../buttons/telegram-button.service";
 import {
     ActionResult,
     BeforeHandleInputActions,
     BeforeHandleInputMiddleware,
     Middleware,
+    State,
 } from "../types/scenes";
-import { mergeFilters } from "./filters";
+import { callbackQuery, mergeFilters } from "./filters";
+import { sceneHash } from "./hash";
 
 export async function runMiddlewares<TState>(
     context: Context,
@@ -48,9 +52,12 @@ export async function runBeforeHandleInputMiddlewares<TState>(
     let actionResult: ActionResult<BeforeHandleInputActions> | undefined;
     let allMiddlewaresAreExecuted = false;
 
-    const actions: Pick<BeforeHandleInputActions, "exit"> = {
+    const actions: Pick<BeforeHandleInputActions, "exit" | "skip"> = {
         exit: () => {
             actionResult = { type: "exit" };
+        },
+        skip: () => {
+            actionResult = { type: "skip" };
         },
     };
 
@@ -116,6 +123,20 @@ export function exitOn(
     };
 }
 
+export function skipOn(
+    ...filters: ((update: Context["update"]) => boolean)[]
+): (context: Context, actions: BeforeHandleInputActions) => MaybePromise<void> {
+    const predicate = mergeFilters(filters);
+
+    return (context, actions) => {
+        if (predicate(context.update)) {
+            return actions.skip();
+        }
+
+        return actions.next();
+    };
+}
+
 export function nextOn(
     ...filters: ((update: Context["update"]) => boolean)[]
 ): (context: Context, actions: BeforeHandleInputActions) => MaybePromise<void> {
@@ -124,6 +145,69 @@ export function nextOn(
     return (context, actions) => {
         if (predicate(context.update)) {
             return actions.next();
+        }
+    };
+}
+
+export function nextOnCallbackQuery(): (
+    context: Context,
+    actions: BeforeHandleInputActions,
+    state: State,
+) => MaybePromise<void> {
+    return async (context, actions, state) => {
+        if (!callbackQuery()(context.update)) {
+            return;
+        }
+
+        try {
+            const { hash } = TelegramButtonService.parseCallbackButtonPayload(
+                context.update.callback_query.data,
+            );
+
+            if (hash === sceneHash(state)) {
+                return actions.next();
+            }
+        } catch {
+            // ingore
+        }
+    };
+}
+
+export function paginate(
+    paginationCallback: (
+        context: Context,
+        actions: BeforeHandleInputActions,
+        state: State,
+        buttonType: ButtonType.PREVIOUS | ButtonType.NEXT,
+    ) => MaybePromise<void>,
+): (
+    context: Context,
+    actions: BeforeHandleInputActions,
+    state: State,
+) => MaybePromise<void> {
+    return async (context, actions, state) => {
+        if (!callbackQuery()(context.update)) {
+            return actions.next();
+        }
+
+        try {
+            const { payload } =
+                TelegramButtonService.parseCallbackButtonPayload(
+                    context.update.callback_query.data,
+                );
+
+            if (
+                payload === ButtonType.PREVIOUS ||
+                payload === ButtonType.NEXT
+            ) {
+                await paginationCallback(context, actions, state, payload);
+                await context.answerCbQuery();
+                return;
+            }
+
+            return actions.next();
+        } catch {
+            // ignore
         }
     };
 }

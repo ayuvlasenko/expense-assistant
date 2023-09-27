@@ -117,26 +117,37 @@ export class TelegramBotService
 
         this.bot.use(this.composer.middleware());
 
-        const domain = this.configService.get("TELEGRAM_WEBHOOK_DOMAIN", {
-            infer: true,
-        });
-        const port = this.configService.get("TELEGRAM_WEBHOOK_PORT", {
-            infer: true,
-        });
-        const secretToken = this.configService.get(
-            "TELEGRAM_WEBHOOK_SECRET_TOKEN",
+        const useLongPolling = this.configService.get(
+            "TELEGRAM_USE_LONG_POLLING",
             {
                 infer: true,
             },
         );
 
-        await this.bot.launch({
-            webhook: {
-                domain,
-                port,
-                secretToken,
-            },
-        });
+        if (useLongPolling) {
+            void this.bot.launch();
+        } else {
+            const domain = this.configService.get("TELEGRAM_WEBHOOK_DOMAIN", {
+                infer: true,
+            });
+            const port = this.configService.get("TELEGRAM_WEBHOOK_PORT", {
+                infer: true,
+            });
+            const secretToken = this.configService.get(
+                "TELEGRAM_WEBHOOK_SECRET_TOKEN",
+                {
+                    infer: true,
+                },
+            );
+
+            await this.bot.launch({
+                webhook: {
+                    domain,
+                    port,
+                    secretToken,
+                },
+            });
+        }
 
         this.isLaunched = true;
     }

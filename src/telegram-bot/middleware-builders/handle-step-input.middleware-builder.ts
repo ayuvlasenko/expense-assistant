@@ -11,6 +11,7 @@ import { TelegramSessionService } from "../session/telegram-session.service";
 import {
     ActionResult,
     AfterSceneState,
+    BeforeHandleInputActions,
     HandleInputActions,
     Scene,
     State,
@@ -28,7 +29,7 @@ export class HandleStepInputMiddlewareBuilder extends BaseSceneMiddlewareBuilder
         return async (context, next) => {
             const session = TelegramSessionService.getCurrent();
 
-            if (!session?.scene || !session.step) {
+            if (!session?.scene || !session.step || !session.stepEnteredAt) {
                 return next();
             }
 
@@ -55,6 +56,7 @@ export class HandleStepInputMiddlewareBuilder extends BaseSceneMiddlewareBuilder
                 stepIndex: steps.findIndex(
                     (item) => item.name === session.step,
                 ),
+                stepEnteredAt: session.stepEnteredAt,
                 user: UserService.getCurrentOrFail(),
                 payload: session.payload ?? {},
             };
@@ -73,6 +75,13 @@ export class HandleStepInputMiddlewareBuilder extends BaseSceneMiddlewareBuilder
             if (beforeHandleInputActionResult.type === "exit") {
                 await this.runAfterSceneMiddlewares(context, scene, state, {
                     type: "exit",
+                });
+                return;
+            }
+
+            if (beforeHandleInputActionResult.type === "skip") {
+                await this.handleStepAction(context, scene, state, {
+                    type: "next",
                 });
                 return;
             }
@@ -102,9 +111,7 @@ export class HandleStepInputMiddlewareBuilder extends BaseSceneMiddlewareBuilder
         context: Context,
         step: Step,
         state: State,
-    ): Promise<
-        ActionResult<Pick<HandleInputActions, "next" | "exit">> | undefined
-    > {
+    ): Promise<ActionResult<BeforeHandleInputActions> | undefined> {
         let beforeHandleInput = step.beforeHandleInput ?? [];
         if (!Array.isArray(beforeHandleInput)) {
             beforeHandleInput = [beforeHandleInput];

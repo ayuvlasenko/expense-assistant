@@ -1,10 +1,41 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { Account, Category, OperationType } from "@prisma/client";
 import { PrismaService } from "~/prisma/prisma.service";
 
 @Injectable()
 export class OperationService {
     constructor(private readonly prismaService: PrismaService) {}
+
+    async softDelete(operationId: string) {
+        const operation = await this.prismaService.operation.findUnique({
+            where: {
+                id: operationId,
+            },
+            include: {
+                account: true,
+            },
+        });
+
+        if (!operation) {
+            throw new BadRequestException("Operation not found");
+        }
+
+        if (operation.deletedAt) {
+            return operation;
+        }
+
+        return this.prismaService.operation.update({
+            where: {
+                id: operation.id,
+            },
+            data: {
+                deletedAt: new Date(),
+            },
+            include: {
+                account: true,
+            },
+        });
+    }
 
     createIncoming(
         account: Account,
@@ -72,6 +103,7 @@ export class OperationService {
                 executedAt: startFrom && {
                     gte: startFrom,
                 },
+                deletedAt: null,
             },
             _sum: {
                 sum: true,
@@ -94,6 +126,10 @@ export class OperationService {
         executedAt: Date,
         category?: Category,
     ) {
+        if (account.deletedAt) {
+            throw new BadRequestException("Account is deleted");
+        }
+
         return this.prismaService.operation.create({
             data: {
                 type,

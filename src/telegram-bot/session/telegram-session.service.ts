@@ -32,6 +32,7 @@ export class TelegramSessionService {
 
         currentSession.scene = null;
         currentSession.step = null;
+        currentSession.stepEnteredAt = null;
         currentSession.payload = null;
 
         await this.save(currentSession);
@@ -48,6 +49,7 @@ export class TelegramSessionService {
         user: User;
         scene?: string;
         step?: string;
+        stepEnteredAt?: Date;
         payload?: Record<string, unknown>;
     }) {
         const payload = options.payload
@@ -59,12 +61,14 @@ export class TelegramSessionService {
             update: {
                 scene: options.scene,
                 step: options.step,
+                stepEnteredAt: options.stepEnteredAt,
                 payload,
             },
             create: {
                 userId: options.user.id,
                 scene: options.scene,
                 step: options.step,
+                stepEnteredAt: options.stepEnteredAt,
                 payload,
             },
             include: { user: true },
@@ -82,6 +86,7 @@ export class TelegramSessionService {
             data: {
                 scene: session.scene,
                 step: session.step,
+                stepEnteredAt: session.stepEnteredAt,
                 payload,
             },
             include: { user: true },

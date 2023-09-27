@@ -5,9 +5,16 @@ import { CreateAccountSceneService } from "./scenes/create-account.scene-service
 import { AccountModule } from "~/account/account.module";
 import { CurrencyModule } from "~/currency/currency.module";
 import { BalanceModule } from "~/balance/balance.module";
+import { DeleteAccountSceneService } from "./scenes/delete-account.scene-service";
+import { AccountsButtonService } from "./buttons/accounts.button-service";
 
 @Module({
     imports: [TelegramBotModule, AccountModule, BalanceModule, CurrencyModule],
-    providers: [TelegramBotSceneService, CreateAccountSceneService],
+    providers: [
+        AccountsButtonService,
+        TelegramBotSceneService,
+        CreateAccountSceneService,
+        DeleteAccountSceneService,
+    ],
 })
 export class TelegramBotSceneModule {}

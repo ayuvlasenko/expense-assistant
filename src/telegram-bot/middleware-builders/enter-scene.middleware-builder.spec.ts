@@ -1,12 +1,13 @@
-import { Test } from "@nestjs/testing";
-import { TelegramSession, User } from "@prisma/client";
+import { Test, TestingModule } from "@nestjs/testing";
+import { TelegramSession } from "@prisma/client";
 import { Middleware, Scene, Step } from "../types/scenes";
 import { TelegramSessionService } from "../session/telegram-session.service";
 import { EnterSceneMiddlewareBuilder } from "./enter-scene.middleware-builder";
 import { Context } from "telegraf";
-import { UserService } from "~/user/user.service";
+import { User, UserService } from "~/user/user.service";
 
 describe("enter-scene.middleware-builder", () => {
+    let moduleRef: TestingModule;
     let enterSceneMiddlewareBuilder!: EnterSceneMiddlewareBuilder;
     let telegramSessionService!: TelegramSessionService;
 
@@ -34,7 +35,7 @@ describe("enter-scene.middleware-builder", () => {
             steps: [{ name: "step", handleInput: jest.fn() }],
         };
 
-        const moduleRef = await Test.createTestingModule({
+        moduleRef = await Test.createTestingModule({
             providers: [
                 EnterSceneMiddlewareBuilder,
                 {
@@ -63,7 +64,9 @@ describe("enter-scene.middleware-builder", () => {
         jest.spyOn(UserService, "getCurrent").mockReturnValue(userMock);
     });
 
-    afterEach(() => {
+    afterEach(async () => {
+        await moduleRef.close();
+
         jest.clearAllMocks();
         jest.restoreAllMocks();
     });
@@ -268,6 +271,7 @@ describe("enter-scene.middleware-builder", () => {
                 scene: sceneMock.name,
                 step: step.name,
                 stepIndex: 0,
+                stepEnteredAt: expect.any(Date),
                 user: userMock,
                 payload: {},
             },
@@ -279,6 +283,7 @@ describe("enter-scene.middleware-builder", () => {
                 scene: sceneMock.name,
                 step: step.name,
                 stepIndex: 0,
+                stepEnteredAt: expect.any(Date),
                 user: userMock,
                 payload: {},
             },

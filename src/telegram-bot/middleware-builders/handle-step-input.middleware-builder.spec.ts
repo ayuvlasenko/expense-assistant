@@ -1,4 +1,4 @@
-import { TelegramSession, User } from "@prisma/client";
+import { TelegramSession } from "@prisma/client";
 import { TelegramSessionService } from "../session/telegram-session.service";
 import {
     AfterHandleInputMiddleware,
@@ -12,11 +12,12 @@ import {
     AfterSceneMiddleware,
 } from "../types/scenes";
 import { HandleStepInputMiddlewareBuilder } from "./handle-step-input.middleware-builder";
-import { Test } from "@nestjs/testing";
-import { UserService } from "~/user/user.service";
+import { Test, TestingModule } from "@nestjs/testing";
+import { User, UserService } from "~/user/user.service";
 import { Context } from "telegraf";
 
 describe("handle-step-input.middleware-builder", () => {
+    let moduleRef!: TestingModule;
     let handleStepInputMiddlewareBuilder!: HandleStepInputMiddlewareBuilder;
     let telegramSessionService!: TelegramSessionService;
 
@@ -44,7 +45,7 @@ describe("handle-step-input.middleware-builder", () => {
             steps: [{ name: "step", handleInput: jest.fn() }],
         };
 
-        const moduleRef = await Test.createTestingModule({
+        moduleRef = await Test.createTestingModule({
             providers: [
                 HandleStepInputMiddlewareBuilder,
                 {
@@ -73,7 +74,9 @@ describe("handle-step-input.middleware-builder", () => {
         jest.spyOn(UserService, "getCurrent").mockReturnValue(userMock);
     });
 
-    afterEach(() => {
+    afterEach(async () => {
+        await moduleRef.close();
+
         jest.clearAllMocks();
         jest.restoreAllMocks();
     });
@@ -83,7 +86,7 @@ describe("handle-step-input.middleware-builder", () => {
             (_context, actions) => actions.next(),
         );
         const secondMiddleware: BeforeHandleInputMiddleware = jest.fn(
-            (_context, acitons) => acitons.next(),
+            (_context, actions) => actions.next(),
         );
 
         const step = Array.isArray(sceneMock.steps)
@@ -93,6 +96,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = step.name;
+        sessionMock.stepEnteredAt = new Date();
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
             sceneMock,
@@ -118,6 +122,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = step.name;
+        sessionMock.stepEnteredAt = new Date();
         sessionMock.payload = {};
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
@@ -133,6 +138,7 @@ describe("handle-step-input.middleware-builder", () => {
                 step: step.name,
                 stepIndex: 0,
                 user: userMock,
+                stepEnteredAt: sessionMock.stepEnteredAt,
                 payload: {},
             },
         );
@@ -143,6 +149,7 @@ describe("handle-step-input.middleware-builder", () => {
                 scene: sceneMock.name,
                 step: step.name,
                 stepIndex: 0,
+                stepEnteredAt: sessionMock.stepEnteredAt,
                 user: userMock,
                 payload: {},
             },
@@ -170,6 +177,7 @@ describe("handle-step-input.middleware-builder", () => {
             : sceneMock.steps;
         sessionMock.scene = sceneMock.name;
         sessionMock.step = step.name;
+        sessionMock.stepEnteredAt = new Date();
         sessionMock.payload = {};
         step.beforeHandleInput = [firstMiddleware, secondMiddleware];
         step.handleInput = inputHandler as InputHandler;
@@ -186,6 +194,7 @@ describe("handle-step-input.middleware-builder", () => {
                 scene: sceneMock.name,
                 step: step.name,
                 stepIndex: 0,
+                stepEnteredAt: sessionMock.stepEnteredAt,
                 user: userMock,
                 payload: expect.objectContaining({
                     firstMiddleware: "value",
@@ -213,6 +222,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = step.name;
+        sessionMock.stepEnteredAt = new Date();
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
             sceneMock,
@@ -238,6 +248,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = step.name;
+        sessionMock.stepEnteredAt = new Date();
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
             sceneMock,
@@ -260,6 +271,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = step.name;
+        sessionMock.stepEnteredAt = new Date();
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
             sceneMock,
@@ -286,6 +298,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = step.name;
+        sessionMock.stepEnteredAt = new Date();
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
             sceneMock,
@@ -329,6 +342,7 @@ describe("handle-step-input.middleware-builder", () => {
 
             sessionMock.scene = sceneMock.name;
             sessionMock.step = (sceneMock.steps[1] as Step).name;
+            sessionMock.stepEnteredAt = new Date();
 
             const handleInputMiddleware =
                 handleStepInputMiddlewareBuilder.build([sceneMock]);
@@ -366,6 +380,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = (sceneMock.steps[0] as Step).name;
+        sessionMock.stepEnteredAt = new Date();
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
             sceneMock,
@@ -396,6 +411,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = (sceneMock.steps[1] as Step).name;
+        sessionMock.stepEnteredAt = new Date();
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
             sceneMock,
@@ -425,6 +441,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = (sceneMock.steps[1] as Step).name;
+        sessionMock.stepEnteredAt = new Date();
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
             sceneMock,
@@ -450,6 +467,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = (sceneMock.steps[0] as Step).name;
+        sessionMock.stepEnteredAt = new Date();
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
             sceneMock,
@@ -475,6 +493,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = (sceneMock.steps[0] as Step).name;
+        sessionMock.stepEnteredAt = new Date();
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
             sceneMock,
@@ -498,6 +517,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = step.name;
+        sessionMock.stepEnteredAt = new Date();
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
             sceneMock,
@@ -523,6 +543,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = step.name;
+        sessionMock.stepEnteredAt = new Date();
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
             sceneMock,
@@ -548,6 +569,7 @@ describe("handle-step-input.middleware-builder", () => {
 
         sessionMock.scene = sceneMock.name;
         sessionMock.step = step.name;
+        sessionMock.stepEnteredAt = new Date();
 
         const handleInputMiddleware = handleStepInputMiddlewareBuilder.build([
             sceneMock,

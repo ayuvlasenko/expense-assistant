@@ -44,6 +44,7 @@ export interface State<TPayload = unknown> {
     scene: string;
     step: string;
     stepIndex: number;
+    stepEnteredAt: Date;
     user: User;
     payload: Partial<TPayload>;
 }

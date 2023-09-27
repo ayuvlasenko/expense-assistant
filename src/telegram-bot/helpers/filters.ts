@@ -1,6 +1,10 @@
 import { Context } from "telegraf";
 import { message as telegrafMessage } from "telegraf/filters";
-import { Message, Update } from "telegraf/typings/core/types/typegram";
+import {
+    CallbackQuery,
+    Message,
+    Update,
+} from "telegraf/typings/core/types/typegram";
 
 // modified telegraf's message filter to ignore commands
 export const message = ((...args: Parameters<typeof telegrafMessage>) => {
@@ -12,6 +16,14 @@ export const message = ((...args: Parameters<typeof telegrafMessage>) => {
         return !command()(update);
     };
 }) as typeof telegrafMessage;
+
+export const callbackQuery = () => {
+    return (
+        update: Context["update"],
+    ): update is Update.CallbackQueryUpdate<CallbackQuery.DataQuery> => {
+        return "callback_query" in update && "data" in update.callback_query;
+    };
+};
 
 export function command(name?: string) {
     return (

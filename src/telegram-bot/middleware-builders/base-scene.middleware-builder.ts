@@ -48,6 +48,7 @@ export abstract class BaseSceneMiddlewareBuilder {
                 typeof nameOrIndex === "number"
                     ? nameOrIndex
                     : steps.findIndex((item) => item.name === nameOrIndex),
+            stepEnteredAt: new Date(),
             user: UserService.getCurrentOrFail(),
             payload: session.payload ?? {},
         };
@@ -109,6 +110,7 @@ export abstract class BaseSceneMiddlewareBuilder {
 
         session.scene = state.scene;
         session.step = state.step;
+        session.stepEnteredAt = state.stepEnteredAt;
         session.payload = state.payload ?? null;
 
         await this.sessionService.save(session);

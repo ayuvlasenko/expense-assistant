@@ -29,7 +29,7 @@ export class HandleStepInputMiddlewareBuilder extends BaseSceneMiddlewareBuilder
         return async (context, next) => {
             const session = TelegramSessionService.getCurrent();
 
-            if (!session?.scene || !session.step) {
+            if (!session?.scene || !session.step || !session.stepEnteredAt) {
                 return next();
             }
 
@@ -56,6 +56,7 @@ export class HandleStepInputMiddlewareBuilder extends BaseSceneMiddlewareBuilder
                 stepIndex: steps.findIndex(
                     (item) => item.name === session.step,
                 ),
+                stepEnteredAt: session.stepEnteredAt,
                 user: UserService.getCurrentOrFail(),
                 payload: session.payload ?? {},
             };

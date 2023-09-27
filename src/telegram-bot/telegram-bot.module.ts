@@ -9,6 +9,7 @@ import { SessionMiddlewareBuilder } from "./middleware-builders/session.middlewa
 import { UserMiddlewareBuilder } from "./middleware-builders/user.middleware-builder";
 import { TelegramSessionModule } from "./session/telegram-session.module";
 import { TelegramBotService } from "./telegram-bot.service";
+import { TelegramButtonService } from "./buttons/telegram-button.service";
 
 @Module({
     imports: [
@@ -20,11 +21,12 @@ import { TelegramBotService } from "./telegram-bot.service";
     ],
     providers: [
         TelegramBotService,
+        TelegramButtonService,
         EnterSceneMiddlewareBuilder,
         HandleStepInputMiddlewareBuilder,
         UserMiddlewareBuilder,
         SessionMiddlewareBuilder,
     ],
-    exports: [TelegramBotService],
+    exports: [TelegramBotService, TelegramButtonService],
 })
 export class TelegramBotModule {}

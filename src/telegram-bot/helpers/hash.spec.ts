@@ -1,4 +1,4 @@
-import { validateSceneHash, sceneHash } from "./hash";
+import { validateStepHash, stepHash } from "./hash";
 
 describe("hash", () => {
     const options = {
@@ -10,7 +10,7 @@ describe("hash", () => {
 
     describe("sceneHash", () => {
         it("generates a hash based on the scene, step, and date", () => {
-            const hash = sceneHash(options);
+            const hash = stepHash(options);
 
             expect(hash).toEqual(expectedHash);
         });
@@ -18,12 +18,12 @@ describe("hash", () => {
 
     describe("validateSceneHash", () => {
         it("returns true if the hash matches the options", () => {
-            expect(validateSceneHash(expectedHash, options)).toEqual(true);
+            expect(validateStepHash(expectedHash, options)).toEqual(true);
         });
 
         it("returns false if the hash does not match the options", () => {
             expect(
-                validateSceneHash(expectedHash, {
+                validateStepHash(expectedHash, {
                     ...options,
                     step: "enter_username",
                 }),

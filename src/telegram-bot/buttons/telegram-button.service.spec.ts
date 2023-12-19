@@ -14,7 +14,7 @@ describe("telegram-button.service", () => {
         const payload = { foo: "bar" };
         const hash = 123;
 
-        const result = TelegramButtonService.parseCallbackButtonPayload(
+        const result = TelegramButtonService.parseCallbackButtonData(
             JSON.stringify({ h: hash, p: payload }),
         );
 
@@ -25,7 +25,7 @@ describe("telegram-button.service", () => {
         const payload = "foo";
         const hash = 123;
 
-        const result = TelegramButtonService.parseCallbackButtonPayload(
+        const result = TelegramButtonService.parseCallbackButtonData(
             JSON.stringify({ h: hash, p: payload }),
         );
 

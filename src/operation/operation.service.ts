@@ -42,6 +42,7 @@ export class OperationService {
         sum: number,
         executedAt: Date,
         category?: Category,
+        description?: string,
     ) {
         return this.create(
             OperationType.INCOMING,
@@ -49,6 +50,7 @@ export class OperationService {
             sum,
             executedAt,
             category,
+            description,
         );
     }
 
@@ -57,6 +59,7 @@ export class OperationService {
         sum: number,
         executedAt: Date,
         category?: Category,
+        description?: string,
     ) {
         return this.create(
             OperationType.OUTGOING,
@@ -64,6 +67,7 @@ export class OperationService {
             sum,
             executedAt,
             category,
+            description,
         );
     }
 
@@ -74,6 +78,7 @@ export class OperationService {
         toSum: number,
         executedAt: Date,
         category?: Category,
+        description?: string,
     ) {
         return this.prismaService.$transaction([
             this.create(
@@ -82,6 +87,7 @@ export class OperationService {
                 fromSum,
                 executedAt,
                 category,
+                description,
             ),
             this.create(
                 OperationType.INCOMING,
@@ -89,6 +95,7 @@ export class OperationService {
                 toSum,
                 executedAt,
                 category,
+                description,
             ),
         ]);
     }
@@ -125,6 +132,7 @@ export class OperationService {
         sum: number,
         executedAt: Date,
         category?: Category,
+        description?: string,
     ) {
         if (account.deletedAt) {
             throw new BadRequestException("Account is deleted");
@@ -145,6 +153,7 @@ export class OperationService {
                 },
                 sum,
                 executedAt,
+                description,
             },
             include: {
                 account: true,

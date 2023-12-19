@@ -120,6 +120,15 @@ export class AccountService {
         });
     }
 
+    async hasAnyAccounts(user: User): Promise<boolean> {
+        return !!(await this.prismaService.account.findFirst({
+            where: {
+                userId: user.id,
+                deletedAt: null,
+            },
+        }));
+    }
+
     async findAndCount(options: {
         user: User;
         skip: number;

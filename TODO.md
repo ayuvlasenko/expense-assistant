@@ -1,4 +1,5 @@
 today:
+- add user timezone
 - fix null in telegram session payload
 - move softDelete to prisma extension
 

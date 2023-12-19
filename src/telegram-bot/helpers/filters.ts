@@ -5,6 +5,9 @@ import {
     Message,
     Update,
 } from "telegraf/typings/core/types/typegram";
+import { State } from "../types/scenes";
+import { stepHash } from "./hash";
+import { TelegramButtonService } from "../buttons/telegram-button.service";
 
 // modified telegraf's message filter to ignore commands
 export const message = ((...args: Parameters<typeof telegrafMessage>) => {
@@ -17,13 +20,34 @@ export const message = ((...args: Parameters<typeof telegrafMessage>) => {
     };
 }) as typeof telegrafMessage;
 
-export const callbackQuery = () => {
+export function callbackQuery() {
     return (
         update: Context["update"],
+        state?: State,
     ): update is Update.CallbackQueryUpdate<CallbackQuery.DataQuery> => {
-        return "callback_query" in update && "data" in update.callback_query;
+        if (!("callback_query" in update && "data" in update.callback_query)) {
+            return false;
+        }
+
+        if (!state) {
+            return true;
+        }
+
+        try {
+            const { hash } = TelegramButtonService.parseCallbackButtonData(
+                update.callback_query.data,
+            );
+
+            if (hash === stepHash(state)) {
+                return true;
+            }
+        } catch {
+            // ignore
+        }
+
+        return false;
     };
-};
+}
 
 export function command(name?: string) {
     return (
@@ -63,15 +87,15 @@ export function command(name?: string) {
 }
 
 export function mergeFilters(
-    filters: ((update: Context["update"]) => boolean)[],
-): (update: Update) => boolean {
-    return (update: Update): boolean => {
+    filters: ((update: Context["update"], state?: State) => boolean)[],
+): (update: Update, state?: State) => boolean {
+    return (update: Update, state?: State): boolean => {
         for (const filter of filters) {
             if (
                 typeof filter === "string"
                     ? filter in update ||
                       ("message" in update && filter in update.message)
-                    : filter(update)
+                    : filter(update, state)
             ) {
                 return true;
             }

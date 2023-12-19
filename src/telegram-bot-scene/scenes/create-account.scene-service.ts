@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { Context } from "telegraf";
 import { AccountService } from "~/account/account.service";
 import { BalanceService } from "~/balance/balance.service";
-import { parseCurrencyCode, parseNumber } from "~/common/parsers";
+import { parseCurrencyCode } from "~/common/parsers";
 import { MaybePromise } from "~/common/types";
 import { CurrencyService } from "~/currency/currency.service";
 import { command, message } from "~/telegram-bot/helpers/filters";
@@ -11,10 +11,8 @@ import {
     nextOn,
     reply,
     replyOn,
-    skipOn,
     useIf,
 } from "~/telegram-bot/helpers/middlewares";
-import { assertContext } from "~/telegram-bot/helpers/types";
 import {
     ActionResult,
     AfterSceneState,
@@ -22,6 +20,8 @@ import {
     Scene,
     Step,
 } from "~/telegram-bot/types/scenes";
+import { SumStepService } from "../steps/sum.step-service";
+import { TextStepService } from "../steps/text.step-service";
 
 export interface CreateAccountScenePayload {
     name: string;
@@ -35,6 +35,8 @@ export class CreateAccountSceneService {
         private readonly accountService: AccountService,
         private readonly currencyService: CurrencyService,
         private readonly balanceService: BalanceService,
+        private readonly sumStepService: SumStepService,
+        private readonly textStepService: TextStepService,
     ) {}
 
     build(): Scene<CreateAccountScenePayload> {
@@ -71,21 +73,11 @@ export class CreateAccountSceneService {
     }
 
     private nameStep(): Step<CreateAccountScenePayload> {
-        return {
+        return this.textStepService.build({
             name: "name",
-            onEnter: reply("What is the name of the account?"),
-            beforeHandleInput: [
-                exitOn(command("cancel")),
-                nextOn(message("text")),
-            ],
-            handleInput: async (context, actions, state) => {
-                assertContext(context, message("text"));
-
-                state.payload.name = context.message.text;
-
-                return actions.next();
-            },
-        };
+            text: "What is the name of the account?",
+            property: "name",
+        });
     }
 
     private currencyStep(): Step<CreateAccountScenePayload> {
@@ -97,7 +89,9 @@ export class CreateAccountSceneService {
                 nextOn(message("text")),
             ],
             handleInput: async (context, actions, state) => {
-                assertContext(context, message("text"));
+                if (!context.has(message("text"))) {
+                    return;
+                }
 
                 const maybeCode = parseCurrencyCode(context.message.text);
 
@@ -116,31 +110,12 @@ export class CreateAccountSceneService {
     }
 
     private initialSumStep(): Step<CreateAccountScenePayload> {
-        return {
+        return this.sumStepService.build({
             name: "initial-sum",
-            onEnter: reply("What is the initial sum? (or /skip)"),
-            beforeHandleInput: [
-                exitOn(command("cancel")),
-                skipOn(command("skip")),
-                nextOn(message("text")),
-            ],
-            handleInput: async (context, actions, state) => {
-                assertContext(context, message("text"));
-
-                const maybeSum = parseNumber(context.message.text);
-
-                if (!maybeSum) {
-                    await context.reply(
-                        "Sum should be in format 123.45 or -123.45 (max 2 decimal places)",
-                    );
-                    return;
-                }
-
-                state.payload.initialSum = maybeSum;
-
-                return actions.next();
-            },
-        };
+            text: "What is the initial sum? (or /skip)",
+            property: "initialSum",
+            isOptional: true,
+        });
     }
 
     private async createAccount(

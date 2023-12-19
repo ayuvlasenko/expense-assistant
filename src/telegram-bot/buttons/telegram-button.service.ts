@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import Joi from "joi";
 import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram";
 import { isRecord } from "~/common/types";
-import { sceneHash } from "../helpers/hash";
+import { stepHash } from "../helpers/hash";
 import { ButtonType } from "./enums/button-type.enum";
 import { State } from "../types/scenes";
 
@@ -18,7 +18,27 @@ const callbackDataSchema = Joi.object<{
 export class TelegramButtonService {
     private readonly logger = new Logger(TelegramButtonService.name);
 
-    static parseCallbackButtonPayload(data: string): {
+    static parsePageButtonData(data: string): number | undefined {
+        const { payload } = TelegramButtonService.parseCallbackButtonData(data);
+
+        if (!(typeof payload === "string")) {
+            return;
+        }
+
+        const [type, page] = payload.split(":");
+
+        if (type !== ButtonType.PAGE) {
+            return;
+        }
+
+        if (isNaN(Number(page))) {
+            return;
+        }
+
+        return Number(page);
+    }
+
+    static parseCallbackButtonData(data: string): {
         hash: number;
         payload: unknown;
     } {
@@ -37,24 +57,25 @@ export class TelegramButtonService {
         return { hash: value.h, payload: value.p };
     }
 
-    addPrevNextButtons(options: {
+    addPageButtons(options: {
         state: State;
         buttons: InlineKeyboardButton.CallbackButton[][];
         totalItems: number;
-        currentPage: number;
+        page: number;
         itemsPerPage: number;
     }): InlineKeyboardButton.CallbackButton[][] {
         const controls: InlineKeyboardButton.CallbackButton[] = [];
 
-        if (options.currentPage > 0) {
-            controls.push(this.buildPrevButton(options.state));
+        if (options.page > 0) {
+            controls.push(
+                this.buildPageButton(options.state, "<-", options.page - 1),
+            );
         }
 
-        if (
-            options.totalItems >
-            (options.currentPage + 1) * options.itemsPerPage
-        ) {
-            controls.push(this.buildNextButton(options.state));
+        if (options.totalItems > (options.page + 1) * options.itemsPerPage) {
+            controls.push(
+                this.buildPageButton(options.state, "->", options.page + 1),
+            );
         }
 
         if (controls.length) {
@@ -64,19 +85,15 @@ export class TelegramButtonService {
         return options.buttons;
     }
 
-    buildPrevButton(state: State): InlineKeyboardButton.CallbackButton {
+    buildPageButton(
+        state: State,
+        text: string,
+        page: number,
+    ): InlineKeyboardButton.CallbackButton {
         return this.buildCallbackButton({
             state,
-            text: "<-",
-            payload: ButtonType.PREVIOUS,
-        });
-    }
-
-    buildNextButton(state: State): InlineKeyboardButton.CallbackButton {
-        return this.buildCallbackButton({
-            state,
-            text: "->",
-            payload: ButtonType.NEXT,
+            text,
+            payload: `${ButtonType.PAGE}:${page}`,
         });
     }
 
@@ -85,7 +102,7 @@ export class TelegramButtonService {
         text: string;
         payload: unknown;
     }): InlineKeyboardButton.CallbackButton {
-        const hash = sceneHash({
+        const hash = stepHash({
             scene: options.state.scene,
             step: options.state.step,
             stepEnteredAt: options.state.stepEnteredAt,

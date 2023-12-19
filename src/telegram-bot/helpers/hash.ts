@@ -1,6 +1,6 @@
 import { str } from "crc-32";
 
-export function validateSceneHash(
+export function validateStepHash(
     hash: number,
     options: {
         scene: string;
@@ -8,10 +8,10 @@ export function validateSceneHash(
         stepEnteredAt: Date;
     },
 ): boolean {
-    return hash === sceneHash(options);
+    return hash === stepHash(options);
 }
 
-export function sceneHash(options: {
+export function stepHash(options: {
     scene: string;
     step: string;
     stepEnteredAt: Date;

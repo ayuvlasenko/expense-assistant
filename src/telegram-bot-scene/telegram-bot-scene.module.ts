@@ -1,20 +1,33 @@
 import { Module } from "@nestjs/common";
-import { TelegramBotSceneService } from "./telegram-bot-scene.service";
+import { ConfigModule } from "@nestjs/config";
+import { AccountModule } from "~/account/account.module";
+import { BalanceModule } from "~/balance/balance.module";
+import { CurrencyModule } from "~/currency/currency.module";
 import { TelegramBotModule } from "~/telegram-bot/telegram-bot.module";
 import { CreateAccountSceneService } from "./scenes/create-account.scene-service";
-import { AccountModule } from "~/account/account.module";
-import { CurrencyModule } from "~/currency/currency.module";
-import { BalanceModule } from "~/balance/balance.module";
 import { DeleteAccountSceneService } from "./scenes/delete-account.scene-service";
-import { AccountsButtonService } from "./buttons/accounts.button-service";
+import { ChooseAccountStepService } from "./steps/choose-account.step-service";
+import { ChooseDateStepService } from "./steps/choose-date.step-service";
+import { SumStepService } from "./steps/sum.step-service";
+import { TextStepService } from "./steps/text.step-service";
+import { TelegramBotSceneService } from "./telegram-bot-scene.service";
 
 @Module({
-    imports: [TelegramBotModule, AccountModule, BalanceModule, CurrencyModule],
+    imports: [
+        TelegramBotModule,
+        AccountModule,
+        BalanceModule,
+        ConfigModule,
+        CurrencyModule,
+    ],
     providers: [
-        AccountsButtonService,
         TelegramBotSceneService,
         CreateAccountSceneService,
         DeleteAccountSceneService,
+        ChooseAccountStepService,
+        ChooseDateStepService,
+        SumStepService,
+        TextStepService,
     ],
 })
 export class TelegramBotSceneModule {}

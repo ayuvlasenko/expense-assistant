@@ -1,10 +1,9 @@
 import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { Context, Middleware } from "telegraf";
+import { EnvValidationSchema } from "~/config/env-validation.schema";
 import { UserService, userStorage } from "~/user/user.service";
 import { command } from "../helpers/filters";
-import { filterContext } from "../helpers/types";
-import { ConfigService } from "@nestjs/config";
-import { EnvValidationSchema } from "~/config/env-validation.schema";
 
 @Injectable()
 export class UserMiddlewareBuilder {
@@ -33,8 +32,7 @@ export class UserMiddlewareBuilder {
                 });
             }
 
-            const isStartCommand = filterContext(context, command("start"));
-            if (!isStartCommand) {
+            if (!context.has(command("start"))) {
                 return;
             }
 

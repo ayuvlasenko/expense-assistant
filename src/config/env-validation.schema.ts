@@ -9,6 +9,7 @@ export interface EnvValidationSchema {
     TELEGRAM_USE_LONG_POLLING: boolean;
     DATABASE_URL: string;
     INVITE_TOKEN: string;
+    ACCOUNTS_PER_PAGE: number;
 }
 
 export const envValidationSchema = Joi.object<EnvValidationSchema, true>({
@@ -20,4 +21,5 @@ export const envValidationSchema = Joi.object<EnvValidationSchema, true>({
     TELEGRAM_USE_LONG_POLLING: Joi.boolean().required(),
     DATABASE_URL: Joi.string().uri().required(),
     INVITE_TOKEN: Joi.string().required(),
+    ACCOUNTS_PER_PAGE: Joi.number().required(),
 }).unknown(true);

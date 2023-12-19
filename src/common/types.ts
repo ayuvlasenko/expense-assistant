@@ -9,6 +9,9 @@ export type DropLast<T extends unknown[]> = T extends [...infer U, unknown]
     : never;
 export type MaybeArray<T> = T | T[];
 export type MaybePromise<T> = T | Promise<T>;
+export type PropertiesByType<T, U> = keyof {
+    [K in keyof T as T[K] extends U ? K : never]: unknown;
+};
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null;

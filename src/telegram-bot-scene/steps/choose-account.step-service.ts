@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Context } from "telegraf";
-import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram";
+import { InlineKeyboardButton } from "telegraf/types";
 import { validate as validateUuid } from "uuid";
 import { AccountService } from "~/account/account.service";
 import { PropertiesByType } from "~/common/types";
@@ -66,7 +66,7 @@ export class ChooseAccountStepService {
 
                 const { payload: accountId } =
                     TelegramButtonService.parseCallbackButtonData(
-                        context.callbackQuery.data,
+                        context.update.callback_query.data,
                     );
 
                 if (

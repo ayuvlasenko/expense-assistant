@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import Joi from "joi";
-import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram";
+import { InlineKeyboardButton } from "telegraf/types";
 import { isRecord } from "~/common/types";
 import { stepHash } from "../helpers/hash";
-import { ButtonType } from "./enums/button-type.enum";
 import { State } from "../types/scenes";
+import { ButtonType } from "./enums/button-type.enum";
 
 const callbackDataSchema = Joi.object<{
     h: number;
@@ -48,13 +48,13 @@ export class TelegramButtonService {
             throw new BadRequestException("Payload is not a record");
         }
 
-        const { error, value } = callbackDataSchema.validate(jsonData);
+        const result = callbackDataSchema.validate(jsonData);
 
-        if (error) {
+        if (result.error) {
             throw new BadRequestException("Payload is not valid");
         }
 
-        return { hash: value.h, payload: value.p };
+        return { hash: result.value.h, payload: result.value.p };
     }
 
     addPageButtons(options: {

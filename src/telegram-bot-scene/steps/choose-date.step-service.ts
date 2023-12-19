@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { DateTime } from "luxon";
-import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram";
+import { InlineKeyboardButton } from "telegraf/types";
 import { parseDate } from "~/common/parsers";
 import { PropertiesByType } from "~/common/types";
 import { TelegramButtonService } from "~/telegram-bot/buttons/telegram-button.service";

@@ -1,16 +1,14 @@
 import { Context } from "telegraf";
 import { message as telegrafMessage } from "telegraf/filters";
-import {
-    CallbackQuery,
-    Message,
-    Update,
-} from "telegraf/typings/core/types/typegram";
+import { CallbackQuery, Message, Update } from "telegraf/types";
+import { TelegramButtonService } from "../buttons/telegram-button.service";
 import { State } from "../types/scenes";
 import { stepHash } from "./hash";
-import { TelegramButtonService } from "../buttons/telegram-button.service";
 
 // modified telegraf's message filter to ignore commands
-export const message = ((...args: Parameters<typeof telegrafMessage>) => {
+export const message: typeof telegrafMessage = ((
+    ...args: Parameters<typeof telegrafMessage>
+) => {
     return (update: Context["update"]) => {
         if (!telegrafMessage(...args)(update)) {
             return false;

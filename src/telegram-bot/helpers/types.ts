@@ -1,9 +1,13 @@
-import { Context, NarrowedContext } from "telegraf/typings/context";
-import * as tt from "telegraf/typings/telegram-types";
+import {
+    MessageSubType,
+    MountMap,
+    UpdateType,
+} from "node_modules/telegraf/typings/telegram-types";
+import { Context, NarrowedContext } from "telegraf";
 
 type MatchedContext<
     C extends Context,
-    T extends tt.UpdateType | tt.MessageSubType,
-> = NarrowedContext<C, tt.MountMap[T]>;
+    T extends UpdateType | MessageSubType,
+> = NarrowedContext<C, MountMap[T]>;
 
 export type TextMessageContext = MatchedContext<Context, "text">;

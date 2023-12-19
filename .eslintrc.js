@@ -89,8 +89,6 @@ module.exports = {
     "@typescript-eslint/keyword-spacing": "error",
     "no-dupe-class-members": "off",
     "@typescript-eslint/no-dupe-class-members": "error",
-    "no-duplicate-imports": "off",
-    "@typescript-eslint/no-duplicate-imports": "error",
 //    "no-extra-parens": "off",
 //    "@typescript-eslint/no-extra-parens": "error",
     "no-invalid-this": "off",
